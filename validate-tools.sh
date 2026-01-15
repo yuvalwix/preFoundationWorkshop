@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # macOS Development Tools Validation Script
-# Checks for Homebrew, Node.js, Python, and Git
+# Checks for Homebrew, Node.js, Python, Git, and GitHub CLI
 # Lists installed tools with their versions
 #
 # IMPORTANT: This script is READ-ONLY and does NOT install anything.
@@ -171,13 +171,34 @@ else
 fi
 echo ""
 
+# Check GitHub CLI
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}GitHub CLI${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if command -v gh &> /dev/null; then
+    gh_version=$(gh --version 2>/dev/null | head -n 1)
+    gh_path=$(which gh)
+    print_installed "GitHub CLI"
+    echo "  Version: $gh_version"
+    echo "  Path: $gh_path"
+    results+=("GitHub CLI: ✅ $gh_version")
+    ((tools_installed++))
+else
+    print_not_installed "GitHub CLI"
+    echo "  Status: Not installed"
+    results+=("GitHub CLI: ❌ Not installed")
+    ((tools_missing++))
+fi
+echo ""
+
 # Summary
 echo ""
 print_header "Summary"
 echo ""
 
-# Count total tools checked (4 main tools)
-total_tools=4
+# Count total tools checked (5 main tools)
+total_tools=5
 
 echo "Tools Status:"
 echo "  Installed: $tools_installed/$total_tools"
@@ -211,7 +232,7 @@ else
     echo "To install missing tools manually, you can:"
     echo "  1. Run the setup script (if available)"
     echo "  2. Install manually using Homebrew:"
-    echo "     brew install node python@3.12 git"
+    echo "     brew install node python@3.12 git gh"
     exit 1
 fi
 
