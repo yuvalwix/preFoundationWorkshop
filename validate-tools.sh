@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # macOS Development Tools Validation Script
-# Checks for Node.js, Python, and Git
+# Checks for Homebrew, Node.js, Python, and Git
 # Lists installed tools with their versions
 #
 # IMPORTANT: This script is READ-ONLY and does NOT install anything.
@@ -61,6 +61,27 @@ echo ""
 tools_installed=0
 tools_missing=0
 results=()
+
+# Check Homebrew
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}Homebrew${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if command -v brew &> /dev/null; then
+    brew_version=$(brew --version 2>/dev/null | head -n 1)
+    brew_path=$(which brew)
+    print_installed "Homebrew"
+    echo "  Version: $brew_version"
+    echo "  Path: $brew_path"
+    results+=("Homebrew: ✅ $brew_version")
+    ((tools_installed++))
+else
+    print_not_installed "Homebrew"
+    echo "  Status: Not installed"
+    results+=("Homebrew: ❌ Not installed")
+    ((tools_missing++))
+fi
+echo ""
 
 # Check Node.js
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -155,8 +176,8 @@ echo ""
 print_header "Summary"
 echo ""
 
-# Count total tools checked (3 main tools)
-total_tools=3
+# Count total tools checked (4 main tools)
+total_tools=4
 
 echo "Tools Status:"
 echo "  Installed: $tools_installed/$total_tools"
