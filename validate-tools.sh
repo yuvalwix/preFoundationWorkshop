@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # macOS Development Tools Validation Script
-# Checks for Homebrew, Node.js, Python, Git, and GitHub CLI
+# Checks for Xcode CLI Tools, Homebrew, Node.js, Python, Git, and GitHub CLI
 # Lists installed tools with their versions
 #
 # IMPORTANT: This script is READ-ONLY and does NOT install anything.
@@ -62,6 +62,31 @@ tools_installed=0
 tools_missing=0
 results=()
 
+# Check Xcode Command Line Tools
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}Xcode Command Line Tools${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if xcode-select -p &> /dev/null; then
+    xcode_path=$(xcode-select -p)
+    xcode_version=$(pkgutil --pkg-info=com.apple.pkg.CLTools_Executables 2>/dev/null | grep version | awk '{print $2}')
+    print_installed "Xcode Command Line Tools"
+    echo "  Path: $xcode_path"
+    if [ -n "$xcode_version" ]; then
+        echo "  Version: $xcode_version"
+        results+=("Xcode CLI Tools: ✅ v$xcode_version")
+    else
+        results+=("Xcode CLI Tools: ✅ Installed")
+    fi
+    ((tools_installed++))
+else
+    print_not_installed "Xcode Command Line Tools"
+    echo "  Status: Not installed"
+    results+=("Xcode CLI Tools: ❌ Not installed")
+    ((tools_missing++))
+fi
+echo ""
+
 # Check Homebrew
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}Homebrew${NC}"
@@ -116,6 +141,48 @@ else
     print_not_installed "Node.js"
     echo "  Status: Not installed"
     results+=("Node.js: ❌ Not installed")
+    ((tools_missing++))
+fi
+echo ""
+
+# Check fnm (Fast Node Manager)
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}fnm (Fast Node Manager)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if command -v fnm &> /dev/null; then
+    fnm_version=$(fnm --version 2>/dev/null)
+    fnm_path=$(which fnm)
+    print_installed "fnm"
+    echo "  Version: $fnm_version"
+    echo "  Path: $fnm_path"
+    results+=("fnm: ✅ $fnm_version")
+    ((tools_installed++))
+else
+    print_not_installed "fnm (Fast Node Manager)"
+    echo "  Status: Not installed"
+    results+=("fnm: ❌ Not installed")
+    ((tools_missing++))
+fi
+echo ""
+
+# Check Yarn
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}Yarn${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if command -v yarn &> /dev/null; then
+    yarn_version=$(yarn --version 2>/dev/null)
+    yarn_path=$(which yarn)
+    print_installed "Yarn"
+    echo "  Version: $yarn_version"
+    echo "  Path: $yarn_path"
+    results+=("Yarn: ✅ v$yarn_version")
+    ((tools_installed++))
+else
+    print_not_installed "Yarn"
+    echo "  Status: Not installed"
+    results+=("Yarn: ❌ Not installed")
     ((tools_missing++))
 fi
 echo ""
@@ -198,7 +265,7 @@ print_header "Summary"
 echo ""
 
 # Count total tools checked (5 main tools)
-total_tools=5
+total_tools=8
 
 echo "Tools Status:"
 echo "  Installed: $tools_installed/$total_tools"
